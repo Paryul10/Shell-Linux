@@ -13,9 +13,9 @@ $ ./shell
 
 - type 'quit' to exit the shell
 
-# FEATURES
+## FEATURES
 
-## CD
+### CD
 
     
   - "cd (absolute path)" - goes to absolute path
@@ -24,6 +24,6 @@ $ ./shell
   - "cd .." - goes to previous directory
   - "cd ." - goes to same directory
  
-## PWD
+### PWD
 
   - "pwd" - prints absolute path of present working directory

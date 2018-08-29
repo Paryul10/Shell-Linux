@@ -17,14 +17,16 @@ void display(char home_dir[][1024])
 	cwd=getcwd(cwd,1024);
 
 
-    char * p=strstr(cwd,home_dir[2]);
+    char * p=strstr(cwd,home_dir[2]);      //strstr returns the pointer is arg[1] is found in arg[0] , this pointer points to the first occurence of arg[1]
+                                           // if not found it will return null.
 
 	if(strcmp(home_dir[2],cwd)==0)
-		printf("<%s@%s:~>",uinfo.nodename,uinfo.sysname);
+		printf("<%s%s@%s%s:~>","\x1B[1;34m",uinfo.nodename,uinfo.sysname,"\x1B[0m");
 	else 
     {
         if(p)
-        {
+        {   
+            //converting ~ to absolute path.
             int len1 = strlen(home_dir[2]);                     //chote wale ka length
             int len2 = strlen(cwd);
             char * rem =(char *)malloc(sizeof(char)*1024);
@@ -34,16 +36,13 @@ void display(char home_dir[][1024])
                 rem[j-len1]=cwd[j];
             }
             rem[len2] = '\0';
-            //printf("\n");
-            //printf("%s",rem);
-            //printf("\n");
-            printf("<%s@%s:~%s>",uinfo.nodename,uinfo.sysname,rem);
+            printf("<%s%s@%s%s:~%s%s%s>","\x1B[1;34m",uinfo.nodename,uinfo.sysname,"\x1B[0m","\x1B[1;32m",rem,"\x1B[0m");
             free(rem);
             
         }
         else
         {
-            printf("<%s@%s:%s>",uinfo.nodename,uinfo.sysname,cwd);            
+            printf("<%s%s@%s%s:~%s%s%s>","\x1B[1;34m",uinfo.nodename,uinfo.sysname,"\x1B[0m","\x1B[1;32m",cwd,"\x1B[0m");
         }
     }
 	free(cwd);
@@ -75,7 +74,7 @@ int main()
 		char *token;
 		char *token_col[100];
 		ssize_t size=0;
-		getline(&buf2,&size,stdin); // buf 2 reads the input. this is the syntax of getline..
+		getline(&buf2,&size,stdin);             // buf 2 reads the input. this is the syntax of getline..
 		if(strcmp(buf2,"\n")==0)
 		{
 			display(home_dir);
@@ -84,11 +83,11 @@ int main()
 
         //strcpy(buf,buf2);
 		int i=0,j=0;
-		token_col[j]=strtok(buf2,";"); //We need a pointer to char to store tokens
-                                     //strtok -> it splits string on the basis of a delimiter. 
-                                    //the above statement assigns token the first string obtained after splitting
+		token_col[j]=strtok(buf2,";");            //We need a pointer to char to store tokens
+                                                 //strtok -> it splits string on the basis of a delimiter. 
+                                                //the above statement assigns token the first string obtained after splitting
 
-        while(token_col[j]!=NULL)   //We need to run the loop until there are no tokens to return 
+        while(token_col[j]!=NULL)             //We need to run the loop until there are no tokens to return 
 		{
 			j++;                            // counts the total number of commands given   
 			token_col[j]=strtok(NULL,";"); // syntax of strtok , i dont know.
@@ -115,6 +114,8 @@ int main()
 				pwd();
             else if(strcmp(token,"echo")==0)
 				echo(token);
+            else
+                printf("COMMNAND DOES NOT EXIST!!! %sUNGLI MAT KAR%s\n","\x1B[0;33m","\x1B[0m");
 
             
             i++;
