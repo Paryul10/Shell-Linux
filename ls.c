@@ -44,7 +44,7 @@ void printall(char *file, char *c)
     printf ("%s\n", c);
 }
 
-void s(char file[], int flag)
+void list(char file[], int flag)
 {
     struct dirent **file_list;
     int n = scandir(file, &file_list, NULL, alphasort);
