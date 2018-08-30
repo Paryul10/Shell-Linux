@@ -28,6 +28,10 @@ $ ./shell
 
   - "pwd" - prints absolute path of present working directory
 
+### ECHO
+  
+  - type <echo "anything"> will output anything
+
 ### LS
 
 
@@ -53,5 +57,17 @@ $ ./shell
   - Memory
   - Executable path -- (Absolute path - includes ~/ if        executable is present inside the shell directory)
 
+
+### FOREGROUND PROCESS
+
+  -  The shell waits for the invoked process to terminate
+
+### BACKGROUND PROCESS
+
+  - HOW TO INVOKE ??
+
+    - put a '&' at the end of any command
+
+  - It will run in the background and when exited a message is given on the shell
 
 
