@@ -7,6 +7,7 @@
 #include "cd.h"
 #include "pwd.h"
 #include "echo.h"
+#include "ls.h"
 
 struct utsname uinfo; // define a utsname structure, get name and information about current kernel
 
@@ -114,6 +115,8 @@ int main()
 				pwd();
             else if(strcmp(token,"echo")==0)
 				echo(token);
+            else if(strcmp(token,"ls")==0)
+                ls(token);
             else
                 printf("COMMNAND DOES NOT EXIST!!! %sUNGLI MAT KAR%s\n","\x1B[0;33m","\x1B[0m");
 
