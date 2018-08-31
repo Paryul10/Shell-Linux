@@ -212,6 +212,18 @@ void pinfo(char * token,int homepathlength,char * home)
 
       }*/
 
-      printf("Executable Path -- %s\n",execname);
+        char *p;
+        char *str = execname;
+        char *orig = home;
+        char *rep = "~";
+        static char buffer[4096];
+        if (p = strstr(str, orig))
+        {
+            strncpy(buffer, str, p - str);
+            buffer[p - str] = '\0';
+            sprintf(buffer + (p-str), "%s%s", rep, p + strlen(orig));
+            strcpy(execname, buffer);
+        }
+        printf("Executable Path -- %s\n", execname);
     }  
 }   

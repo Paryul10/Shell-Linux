@@ -12,6 +12,8 @@
 #include "variables.h"
 #include "background.h"
 #include "pinfo.h"
+#include "remindme.h"
+#include "clock.h"
 
 
 char home_dir[3][1024];
@@ -230,6 +232,16 @@ int main()
                 int len = strlen(home_dir[2]);
 				pinfo(token,len,home_dir[2]);
             }
+            else if(strcmp(token,"remindme")==0)
+            {
+                flag = 1;
+                remindme(token);
+            }
+            else if(strcmp(token,"clock")==0)
+            {
+                flag = 1;
+                clocks(token);
+            }
             else
             {
                 int cnt=0;
@@ -238,23 +250,10 @@ int main()
                     strcpy(st[cnt++],token);
                     token = strtok(NULL," \n\t\r");
                 }
-                if((strcmp(st[0],"kjob"))==0)
-                {
-                    flag = 1;
-                    continue;
-					//kjob(st);
-                }
-				else if((strcmp(st[0],"fg"))==0)
-                {   
-                    flag = 1;
-                    continue;
-					//fg(st);
-                }
-				else if(strcmp(st[cnt-1],"&")==0)
+				if(strcmp(st[cnt-1],"&")==0)
 				{
                     flag = 1;
-					background_proc(st,cnt);
-                    
+					background_proc(st,cnt);  
 				}
 				else
 				{

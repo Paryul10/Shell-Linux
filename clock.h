@@ -1,0 +1,1 @@
+void clocks(char * token);
