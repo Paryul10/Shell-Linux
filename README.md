@@ -71,3 +71,26 @@ $ ./shell
   - It will run in the background and when exited a message is given on the shell
 
 
+
+## ADDITIONAL FEATURES
+
+### REMINDER
+
+   - type `remindme <no-of-seconds> "reminder about"` to set a reminder .
+
+### CLOCK
+
+  - A CLOCK MADE BY USING THE HARDWARE CLOCK. 
+  - /sys/class/rtc/rtc0
+  - cat date time
+  - a dynamic clock
+    - type `clock -t <no-of-seconds>`
+    after ececuting the shell will display the date and time after specified interval.
+  - to exit Ctrl-C
+
+
+
+
+
+
+
