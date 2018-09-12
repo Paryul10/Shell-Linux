@@ -1,0 +1,1 @@
+void redirect(char * s,int type);

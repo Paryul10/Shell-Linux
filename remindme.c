@@ -41,6 +41,7 @@ void remindme(char * token)
         printf("\n");
         //kill(getpid(),SIGKILL);
         
+        
     }
     else
     {

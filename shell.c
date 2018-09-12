@@ -15,11 +15,53 @@
 #include "remindme.h"
 #include "clock.h"
 
+#include "redirection.h"
+#include "pipe.h"
+
+#include "jobs.h"
+#include "overkill.h"
+
+
 
 char home_dir[3][1024];
 
 char homee[1024];
 struct utsname uinfo; // define a utsname structure, get name and information about current kernel
+
+int checkredirection(char * s)
+{
+    int slen=strlen(s);
+    int i=0;
+    for(i=0;i<slen;i++)
+    {
+        int p = strcmp("<",s);
+        if((s[i]=='>' && s[i+1]!='>') || (s[i]=='<'))  // < >  case
+        {
+            return 1;
+        }
+        if((s[i]=='>' && s[i+1]=='>'))
+        {
+            return 2;
+        }
+        if((s[i]=='>' && s[i+1]=='>')  && p==0) 
+        {
+            return 2;
+        }
+    }
+    return 0;
+}
+
+int checkpipe(char * s)
+{
+    int slen=strlen(s);
+    int i=0;
+    for(i=0;i<slen;i++)
+    {
+        if(s[i]=='|') return 1;
+    }
+    return 0;
+}
+
 
 void display(char home_dir[][1024])
 {
@@ -59,7 +101,7 @@ void display(char home_dir[][1024])
 	return ;
 }
 
-/*void sig_handle(int sign)
+void sig_handle(int sign)
 {
 	if (sign==2 ||sign==3)
 	{
@@ -80,7 +122,7 @@ void display(char home_dir[][1024])
 			kill(curid,SIGTSTP);
 	
 	return;
-}*/
+}
 void child_sig(int signo)
 {
 	pid_t pid;
@@ -125,7 +167,6 @@ void child_sig(int signo)
 	        // free(cwd);
             display(home_dir);
 			fflush(stdout);
-			//printf("\n");
             break;
             
 		}
@@ -153,15 +194,14 @@ int main()
     display(home_dir);
 
 	free(cwd);
-    // signal(SIGINT,SIG_IGN);
-	// signal(SIGINT,sig_handle);
+    signal(SIGINT,SIG_IGN);
+	signal(SIGINT,sig_handle);
 	signal(SIGCHLD,SIG_IGN);
 	signal(SIGCHLD,child_sig);
-	// signal(SIGTSTP,SIG_IGN);
-	// signal(SIGTSTP,sig_handle);
-	// signal(SIGQUIT,SIG_IGN);
-	// signal(SIGQUIT,sig_handle);
-    
+	signal(SIGTSTP,SIG_IGN);
+	signal(SIGTSTP,sig_handle);
+	signal(SIGQUIT,SIG_IGN);
+	signal(SIGQUIT,sig_handle);
     while(1)
     {
         char *buf2,*buf;
@@ -191,9 +231,27 @@ int main()
 
         while(i<j)                      // start executing command by command.
 		{
-			int k=0,cr=0,cp=0;
+			int k=0,pe=0,re=0;
 			char st[100][100];			
 			char *temp=token_col[i];
+
+            re=checkredirection(token_col[i]);       //if piping exists then parse the commands and execcute and see next instruction 
+            if(re>0)
+            {
+                redirect(token_col[i],re);
+                i++;
+                continue;
+            }
+
+
+            pe=checkpipe(token_col[i]);       //if piping exists then parse the commands and execcute and see next instruction 
+            if(pe==1)
+            {
+                parsepipe(token_col[i]);
+                i++;
+                continue;
+            }
+
             token=strtok(token_col[i]," \n\t\r");
 			if(token==NULL)
 			{
@@ -241,6 +299,16 @@ int main()
             {
                 flag = 1;
                 clocks(token);
+            }
+            else if(strcmp(token,"jobs")==0)
+            {
+                flag=1;
+                print_jobs();
+            }
+            else if(strcmp(token,"overkill")==0)
+            {
+                flag=1;
+                overkill();
             }
             else
             {

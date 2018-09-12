@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pwd.h>
@@ -10,122 +10,116 @@
 #include <time.h>
 #include "ls.h"
 
-void printall(char *file, char *c)
+void printlong(char *file,char *ch)
 {
-    struct stat file_info;
-    struct group *gr;
-    struct passwd *pwd;
-    char path[100];
-    strcpy (path, file);
-    strcat (path, "/");
-    strcat (path, c);
-    if (stat(path, &file_info) < 0)
-        return;
-    
-    gr = getgrgid(file_info.st_gid);
-    pwd = getpwuid(file_info.st_uid);
+	struct stat fileStat;
+	struct group *grp;
+	struct passwd *pwd;
+	char f[200];
+	strcpy(f,file);
+	strcat(f,"/");
+	strcat(f,ch);
+	if(stat(f,&fileStat) < 0)    
+		return;
+	grp=getgrgid(fileStat.st_gid);
+	pwd=getpwuid(fileStat.st_uid);
+	printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+	printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+	printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+	printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+	printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+	printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+	printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+	printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+	printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+	printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+	printf(" ");
+	printf("%ld ",fileStat.st_nlink);
+	printf("%s ",pwd->pw_name);
+	printf("%s",grp->gr_name);
+	printf(" %ld\t",fileStat.st_size);
+	printf(" %.16s ",ctime(&fileStat.st_mtime) );
+	printf("%s\n",ch);
+}
+void print_a(char file[],char c)
+{
+	int n,i;
+	struct dirent **namelist;
+	n=scandir(file,&namelist,NULL,alphasort);
+	if (c=='s')
+	{
+		for(i=0;i<n;i++)
+			printf("%s\t",namelist[i]->d_name );
+		printf("\n");
+	}
+	else
+		for(i=0;i<n;i++)
+			printlong(file,namelist[i]->d_name);
 
-    printf ((S_ISDIR(file_info.st_mode)) ? "d" : "-");
-    printf ((file_info.st_mode & S_IRUSR) ? "r" : "-");
-    printf ((file_info.st_mode & S_IWUSR) ? "w" : "-");
-    printf ((file_info.st_mode & S_IXUSR) ? "x" : "-");
-    printf ((file_info.st_mode & S_IRGRP) ? "r" : "-");
-    printf ((file_info.st_mode & S_IWGRP) ? "w" : "-");
-    printf ((file_info.st_mode & S_IXGRP) ? "x" : "-");
-    printf ((file_info.st_mode & S_IROTH) ? "r" : "-");
-    printf ((file_info.st_mode & S_IWOTH) ? "w" : "-");
-    printf ((file_info.st_mode & S_IXOTH) ? "x" : "-");
-    printf (" ");
-    printf ("%ld ", file_info.st_nlink);
-    printf ("%s ", pwd->pw_name);
-    printf ("%s ", gr->gr_name);
-    printf (" %ld\t", file_info.st_size);
-    printf (" %.16s ", ctime(&file_info.st_mtime));
-    printf ("%s\n", c);
+}
+void print_b(char file[],char c)
+{
+	int n,i=0;
+	struct dirent **namelist;
+	n=scandir(file,&namelist,NULL,alphasort);
+	if (c=='s')
+	{
+		for(i=0;i<n;i++)
+			if(namelist[i]->d_name[0]!='.')
+				printf("%s\t",namelist[i]->d_name );
+		printf("\n");
+	}
+	else
+		for(i=0;i<n;i++)
+			if(namelist[i]->d_name[0]!='.')
+				printlong(file,namelist[i]->d_name);
+
 }
 
-void list(char file[], int flag)
+void ls(char* token)
 {
-    struct dirent **file_list;
-    int n = scandir(file, &file_list, NULL, alphasort);
-    int i;
-    if (flag == 0)              // no flag
-    {
-        for (i=0; i<n; i++)
-        {
-            if (file_list[i]->d_name[0] != '.')
-                printf("%s\t", file_list[i]->d_name);
-        }
-        printf("\n");
-    }
-    else if (flag == 1)         // -l flag
-    {
-        for (i=0; i<n; i++)
-        {
-            if (file_list[i]->d_name[0] != '.')
-                printall(file, file_list[i]->d_name);
-        }
-    }
-    else if (flag == 2)         // -a flag
-    {
-        for (i=0; i<n; i++)
-        {
-            printf("%s\t", file_list[i]->d_name);
-        }
-        printf("\n");
-    }
-    else if (flag == 3)         // -al or -la flag
-    {
-        for (i=0; i<n; i++)
-        {
-            printall(file, file_list[i]->d_name);
-        }
-    }
-}
-
-void ls(char *token)
-{
-    token = strtok(NULL, " \n\t\r");
-    if (token == NULL)
-        list(".", 0);
-    else if (strcmp(token, "-l") == 0)
-    {
-        token = strtok(NULL, " \n\t\r");
-        if (token == NULL)
-            list(".", 1);
-        else if (strcmp(token, "-a") == 0)
-        {
-            token = strtok(NULL, "\n\t\r");
-            if (token == NULL)
-                list(".", 3);
-            else 
-                list(token, 3);
-        }
-        else 
-            list(token, 1);
-    }
-    else if (strcmp(token, "-a") == 0)
-    {
-        token = strtok(NULL, " \n\t\r");
-        if (token == NULL)
-            list(".", 2);
-        else if (strcmp(token, "-l") == 0)
-        {
-            token = strtok(NULL, " \n\t\r");
-            if (token == NULL)
-                list(".", 3);
-            else 
-                list(token, 3);
-        }
-        else 
-            list(token, 2);
-    }
-    else if (strcmp(token, "-al") == 0 || strcmp(token, "-la") == 0)
-    {
-        token = strtok(NULL, " \n\t\r");
-        if (token == NULL)
-            list(".", 3);
-        else    
-            list(token, 3);
-    }
+	token=strtok(NULL," \t\r\n");
+	if(token==NULL )
+	{
+		print_b(".",'s');
+	}
+	else if(((strcmp(token,"-al"))==0) || ((strcmp(token,"-la"))==0))
+	{
+		token=strtok(NULL," \t\r\n");
+		if(token==NULL)
+			print_a(".",'l');
+		else print_a(token,'l');
+	}
+	else if((strcmp(token,"-a")==0))
+	{
+		token=strtok(NULL," \t\r\n");
+		if(token==NULL)
+			print_a(".",'s');
+		else if(strcmp(token,"-l")==0)
+		{
+			token=strtok(NULL," \t\r\n");
+			if(token==NULL)
+				print_a(".",'l');
+			else print_a(token,'l');
+		}
+		else print_a(token,'s');
+	}
+	else if((strcmp(token,"-l")==0))
+	{
+		token=strtok(NULL," \t\r\n");
+		if(token==NULL)
+			print_b(".",'l');
+		else if(strcmp(token,"-a")==0)
+		{
+			token=strtok(NULL," \t\r\n");
+			if(token==NULL)
+				print_a(".",'l');
+			else print_a(token,'l');
+		}
+		else print_b(token,'l');
+	}
+	else 
+	{
+		print_b(token,'s');
+	}
 }
