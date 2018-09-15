@@ -3,10 +3,12 @@
 
 void overkill(){
 	int i;
-	for (i = 0; i < back_c; i++) 
+	for (i = 1; i <= back_c; i++) 
 	{
 		if(background[i].state==1)
+		{
 			kill(background[i].pi,9);
+			background[i].state = 0;
+		}
 	}
-	back_c=0;
 }

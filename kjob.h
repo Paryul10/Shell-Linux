@@ -1,0 +1,1 @@
+void kjob(char st[][100]);

@@ -39,17 +39,18 @@ void foreground(char st[][100],int cnt)
         
     if(WIFSTOPPED(x))
     {
+        back_c++;
         background[back_c].pi=pid;
         background[back_c].state=1;
         strcpy(background[back_c].name,argv[0]);
-        back_c++;
+        //back_c++;
     }
     else
     {
+        back_c++;
 		background[back_c].pi=pid;
 	    background[back_c].state=0;
 		strcpy(background[back_c].name,argv[0]);
-        back_c++;
     }
     return;
 

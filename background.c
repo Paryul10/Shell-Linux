@@ -31,6 +31,7 @@ void background_proc(char st[][100],int cnt)
         printf("pid : %d\n",pid);
     }
 
+    back_c++;
     //STORING THE NAME THE COMMAND WHICH WAS EXECUTED TO BE PRINTED LATER
     background[back_c].pi=pid;
     background[back_c].state=1;
@@ -42,7 +43,7 @@ void background_proc(char st[][100],int cnt)
     strcat(temp,st[x++]);
     }
     strcpy(background[back_c].name,temp);
-    back_c++;
+    
     return;
 
 }

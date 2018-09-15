@@ -60,15 +60,6 @@ void redirect(char * s,int type)
     }
     proc[i] = '\0';
 
-    /*int k=0;
-    while(k<i)
-    {
-        printf("%d , %s\n",k,proc[k]);
-        k++;
-    }*/
-
-    //printf("YEA\n");
-
     char * new_tok;
     int pid;
     pid=fork();
