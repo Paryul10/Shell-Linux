@@ -13,7 +13,7 @@ int inp_red(char *s)
     int i = 0;
     while (s[i] != '\0')
     {
-        if ((s[i]=='<'))
+        if ((s[i] == '<'))
             return 1;
         i++;
     }
@@ -25,15 +25,16 @@ int out_red(char *s)
     int i = 0;
     while (s[i] != '\0')
     {
-        if ((s[i]=='>'))
+        if ((s[i] == '>'))
             return 1;
         i++;
     }
     return 0;
 }
 
-void execute_pipe(char ***command)
+void execute_pipe(char ***command, int cnt)
 {
+    int c = 0;
     int p[2]; //p[0] = read end of the pipe   , p[1] = write end of the pipe
     pid_t pid;
     int fd_in = 0;
@@ -54,9 +55,11 @@ void execute_pipe(char ***command)
         }
         else if (pid == 0)
         {
+            printf("1 entry\n");
             dup2(fd_in, 0);
-            if (*(command + 1) != NULL) // i.e there are more commands after this command seperated thru a pipe
+            if (c != (cnt-1)) // i.e there are more commands after this command seperated thru a pipe
             {
+                //printf("2 entry \n");
                 dup2(p[1], 1); // the write end of the pipe is copied in fd = 1
             }
 
@@ -108,6 +111,7 @@ void execute_pipe(char ***command)
             }
             if (or == 1)
             {
+               // printf("yeas\n");
                 int l = 0, m = 0, n = 0;
 
                 char *op[2];
@@ -153,13 +157,16 @@ void execute_pipe(char ***command)
             close(p[1]);
             fd_in = p[0];
             command++;
+            c++;
         }
     }
 }
 
 void parsepipe(char *s)
 {
+   //printf("pipie entry\n");
     int i = 0, j = 0;
+    int cnt = 0;
     char *rest1;
     char *token = strtok_r(s, "|", &rest1);                    //stores the rest of the string in rest1 , token contains all of the string
     char ***command = (char ***)malloc(sizeof(char **) * 100); //stores every command seperated by a pipe and then breaks that command into its constituent commands arg arraay waala
@@ -179,8 +186,9 @@ void parsepipe(char *s)
         }
         command[i][j] = NULL; // for null terminating string
         token = strtok_r(NULL, "|", &rest1);
+        cnt++;
         i++; // next command set after a pipe
     }
     command[i] = NULL;
-    execute_pipe(command);
+    execute_pipe(command, cnt);
 }

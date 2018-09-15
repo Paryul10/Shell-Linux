@@ -55,6 +55,7 @@ int checkredirection(char *s)
 
 int checkpipe(char *s)
 {
+    
     int slen = strlen(s);
     int i = 0;
     for (i = 0; i < slen; i++)
@@ -199,18 +200,21 @@ int main()
             char st[100][100];
             char *temp = token_col[i];
 
-            re = checkredirection(token_col[i]); //if piping exists then parse the commands and execcute and see next instruction
-            if (re > 0)
-            {
-                redirect(token_col[i], re);
-                i++;
-                continue;
-            }
+            
 
             pe = checkpipe(token_col[i]); //if piping exists then parse the commands and execcute and see next instruction
             if (pe == 1)
             {
+                //printf("yay\n");
                 parsepipe(token_col[i]);
+                i++;
+                continue;
+            }
+
+            re = checkredirection(token_col[i]); //if piping exists then parse the commands and execcute and see next instruction
+            if (re > 0)
+            {
+                redirect(token_col[i], re);
                 i++;
                 continue;
             }
