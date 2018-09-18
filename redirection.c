@@ -63,10 +63,19 @@ void redirect(char * s,int type)
     char * new_tok;
     int pid;
     pid=fork();
+
     if(ir[1]!=NULL)
     {
         new_tok=strtok(ir[1]," \n\t\r");
-        if(new_tok!=NULL)
+        if(new_tok==NULL)
+        {
+            if(pid == 0)
+            {
+                printf("INVALID INPUT FILE\n");
+                exit(0);
+            }
+        }
+        else if(new_tok!=NULL)
         {
             inp = open(new_tok,O_RDONLY);
             if(inp<0 && pid==0)
@@ -76,21 +85,22 @@ void redirect(char * s,int type)
             }
             if(pid==0 && inp>0) dup2(inp,0);
         }
-        else
-        {
-            if(pid == 0)
-            {
-                printf("INVALID INPUT FILE\n");
-                exit(0);
-            }
-        }
+        
     }
 
     char * new_tok2;
     if(or[1]!=NULL)
     {
         new_tok2=strtok(or[1]," \n\t\r");
-        if(new_tok2!=NULL)
+        if(new_tok2 == NULL)
+        {
+            if(pid == 0)
+            {
+                printf("INVALID OUTPUT FILE\n");
+                exit(0);
+            }
+        }
+        else if(new_tok2!=NULL)
         {
             if(type==1)
             {
@@ -105,14 +115,7 @@ void redirect(char * s,int type)
                 dup2(out,1);
             }
         }
-        else
-        {
-            if(pid == 0)
-            {
-                printf("INVALID OUTPUT FILE\n");
-                exit(0);
-            }
-        }
+        
     }
     int status;
     if(pid==0)
@@ -124,7 +127,9 @@ void redirect(char * s,int type)
     {
         while(wait(&status)!=pid);
     }
-    close(inp);
-    close(out);
+
+    //close(inp);
+    //close(out);
+
     return;
 }

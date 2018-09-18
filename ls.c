@@ -10,116 +10,225 @@
 #include <time.h>
 #include "ls.h"
 
-void printlong(char *file,char *ch)
+void printlong(char *file,int k,char * ch)
 {
-	struct stat fileStat;
-	struct group *grp;
-	struct passwd *pwd;
-	char f[200];
+	char f[200]; // create the path which is to be taken to evaluate
 	strcpy(f,file);
 	strcat(f,"/");
 	strcat(f,ch);
-	if(stat(f,&fileStat) < 0)    
+
+	struct stat info_file;
+	if(stat(f,&info_file) < 0)    
 		return;
-	grp=getgrgid(fileStat.st_gid);
-	pwd=getpwuid(fileStat.st_uid);
-	printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
-	printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
-	printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
-	printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
-	printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
-	printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
-	printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
-	printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
-	printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
-	printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
-	printf(" ");
-	printf("%ld ",fileStat.st_nlink);
-	printf("%s ",pwd->pw_name);
-	printf("%s",grp->gr_name);
-	printf(" %ld\t",fileStat.st_size);
-	printf(" %.16s ",ctime(&fileStat.st_mtime) );
-	printf("%s\n",ch);
+
+	struct group *grp;
+	struct passwd *pass;
+	pass=getpwuid(info_file.st_uid);
+	grp=getgrgid(info_file.st_gid);
+
+	if(k==1)    // if the file / directory exists
+	{
+		printf( (S_ISDIR(info_file.st_mode)) ? "d" : "-");
+		printf( (info_file.st_mode & S_IRUSR) ? "r" : "-");
+		printf( (info_file.st_mode & S_IWUSR) ? "w" : "-");
+		printf( (info_file.st_mode & S_IXUSR) ? "x" : "-");
+		printf( (info_file.st_mode & S_IRGRP) ? "r" : "-");
+		printf( (info_file.st_mode & S_IWGRP) ? "w" : "-");
+		printf( (info_file.st_mode & S_IXGRP) ? "x" : "-");
+		printf( (info_file.st_mode & S_IROTH) ? "r" : "-");
+		printf( (info_file.st_mode & S_IWOTH) ? "w" : "-");
+		printf( (info_file.st_mode & S_IXOTH) ? "x" : "-");
+		printf(" ");
+		printf("%ld ",info_file.st_nlink);
+		printf("%s ",pass->pw_name);
+		printf("%s",grp->gr_name);
+		printf(" %ld\t",info_file.st_size);
+		printf(" %.s ",ctime(&info_file.st_mtime) );
+		printf("%s\n",ch);
+	}
 }
-void print_a(char file[],char c)
+
+void check_b(char file_name[], char * d, char c)
+{
+	int n,i=0;
+	struct dirent **namelist;
+	
+	n=scandir(file_name,&namelist,NULL,alphasort);
+	if (c=='s')
+	{
+		i=0;
+		while(i<n)
+		{
+			if(namelist[i]->d_name[0]!='.')
+				printf("%s\t",namelist[i]->d_name );
+
+			i++;
+		}
+		printf("\n");
+	}
+	else
+	{
+		i=0;
+		while(i<n)
+		{
+			if(namelist[i]->d_name[0]!='.')
+				printlong(file_name,1,namelist[i]->d_name);
+			i++;
+		}
+	}
+
+}
+
+
+
+
+void check_a(char file[],char  * d,char c)
 {
 	int n,i;
 	struct dirent **namelist;
 	n=scandir(file,&namelist,NULL,alphasort);
 	if (c=='s')
 	{
-		for(i=0;i<n;i++)
+		i=0;
+		while(i<n)
+		{
 			printf("%s\t",namelist[i]->d_name );
+			i++;
+		}
 		printf("\n");
 	}
 	else
-		for(i=0;i<n;i++)
-			printlong(file,namelist[i]->d_name);
+	{
+		i=0;
+		while(i<n)
+		{
+			printlong(file,1,namelist[i]->d_name);
+			i++;
+		}
+	}
 
 }
-void print_b(char file[],char c)
+
+
+
+
+void print_b(char c,int k,char file_name[])
 {
 	int n,i=0;
 	struct dirent **namelist;
-	n=scandir(file,&namelist,NULL,alphasort);
+	if(k!=1)
+	{
+		printf("Error passing arguments");
+	}
+	n=scandir(file_name,&namelist,NULL,alphasort);
 	if (c=='s')
 	{
-		for(i=0;i<n;i++)
+		i=0;
+		while(i<n)
+		{
 			if(namelist[i]->d_name[0]!='.')
 				printf("%s\t",namelist[i]->d_name );
+
+			i++;
+		}
 		printf("\n");
 	}
 	else
-		for(i=0;i<n;i++)
+	{
+		i=0;
+		while(i<n)
+		{
 			if(namelist[i]->d_name[0]!='.')
-				printlong(file,namelist[i]->d_name);
+				printlong(file_name,1,namelist[i]->d_name);
+			i++;
+		}
+	}
 
 }
 
-void ls(char* token)
+
+void print_a(char file[],char c,int k)
 {
-	token=strtok(NULL," \t\r\n");
-	if(token==NULL )
+	int n,i;
+	struct dirent **namelist;
+	n=scandir(file,&namelist,NULL,alphasort);
+	if(k!=1)
 	{
-		print_b(".",'s');
+		printf("Error passing arguments");
 	}
-	else if(((strcmp(token,"-al"))==0) || ((strcmp(token,"-la"))==0))
+	if (c=='s')
 	{
-		token=strtok(NULL," \t\r\n");
-		if(token==NULL)
-			print_a(".",'l');
-		else print_a(token,'l');
-	}
-	else if((strcmp(token,"-a")==0))
-	{
-		token=strtok(NULL," \t\r\n");
-		if(token==NULL)
-			print_a(".",'s');
-		else if(strcmp(token,"-l")==0)
+		i=0;
+		while(i<n)
 		{
-			token=strtok(NULL," \t\r\n");
-			if(token==NULL)
-				print_a(".",'l');
-			else print_a(token,'l');
+			printf("%s\t",namelist[i]->d_name );
+			i++;
 		}
-		else print_a(token,'s');
+		printf("\n");
 	}
-	else if((strcmp(token,"-l")==0))
+	else
 	{
-		token=strtok(NULL," \t\r\n");
-		if(token==NULL)
-			print_b(".",'l');
-		else if(strcmp(token,"-a")==0)
+		i=0;
+		while(i<n)
 		{
-			token=strtok(NULL," \t\r\n");
-			if(token==NULL)
-				print_a(".",'l');
-			else print_a(token,'l');
+			printlong(file,1,namelist[i]->d_name);
+			i++;
 		}
-		else print_b(token,'l');
+	}
+
+}
+
+
+void ls(char* tok)
+{
+	tok=strtok(NULL," \t\r\n");
+	if(tok==NULL )
+	{
+		print_b('s',1,".");
+	}
+	else if((strcmp(tok,"-a")==0))
+	{
+		tok=strtok(NULL," \t\r\n");
+		if(tok==NULL)
+			print_a(".",'s',1);
+		else if(strcmp(tok,"-l")==0)
+		{
+			tok=strtok(NULL," \t\r\n");
+			if(tok==NULL)
+				print_a(".",'l',1);
+			else print_a(tok,'l',1);
+		}
+		else print_a(tok,'s',1);
+	}
+	else if(((strcmp(tok,"-la"))==0)  ||  ((strcmp(tok,"-al"))==0))
+	{
+		tok=strtok(NULL," \t\r\n");
+
+		if(tok !=NULL)
+		{
+			print_a(tok,'l',1);	
+		}
+		else
+		{
+			print_a(".",'l',1);
+		}
+	}
+	else if((strcmp(tok,"-l")==0))
+	{
+		tok=strtok(NULL," \t\r\n");
+		if(tok==NULL)
+			print_b('l',1,".");
+		else if(strcmp(tok,"-a")==0)
+		{
+			tok=strtok(NULL," \t\r\n");
+			if(tok==NULL)
+				print_a(".",'l',1);
+			else print_a(tok,'l',1);
+		}
+		else print_b('l',1,tok);
 	}
 	else 
 	{
-		print_b(token,'s');
+		print_b('s',1,tok);
 	}
 }

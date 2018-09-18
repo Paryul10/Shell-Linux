@@ -10,8 +10,7 @@
 
 int inp_red(char *s)
 {
-    int i = 0;
-    while (s[i] != '\0')
+    for(int i=0;i<strlen(s);i++)
     {
         if ((s[i] == '<'))
             return 1;
@@ -22,8 +21,7 @@ int inp_red(char *s)
 
 int out_red(char *s)
 {
-    int i = 0;
-    while (s[i] != '\0')
+    for(int i=0;i<strlen(s);i++)
     {
         if ((s[i] == '>'))
             return 1;
@@ -55,7 +53,7 @@ void execute_pipe(char ***command, int cnt)
         }
         else if (pid == 0)
         {
-            printf("1 entry\n");
+            //printf("1 entry\n");
             dup2(fd_in, 0);
             if (c != (cnt-1)) // i.e there are more commands after this command seperated thru a pipe
             {

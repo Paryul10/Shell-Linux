@@ -12,8 +12,8 @@ void fg(char st[][100])
     }
     else if (background[job_no].state == 1)
     {
-        printf("%s\n", background[job_no].name);
         int s;
+        printf("%s\n", background[job_no].name);
         waitpid(background[job_no].pi, &s, 0);
         background[job_no].state=0;
     }
